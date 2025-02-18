@@ -1,0 +1,4 @@
+---
+- import_playbook: init_first_node.yml
+- import_playbook: append_master_node.yml
+- import_playbook: append_worker_node.yml

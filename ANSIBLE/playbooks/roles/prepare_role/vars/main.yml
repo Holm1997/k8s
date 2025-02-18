@@ -1,0 +1,16 @@
+enable_proxy: true
+
+master_nodes:
+  k-master-1:
+    adr: 192.168.0.6
+    port: 6443
+  k-master-2:
+    adr: 192.168.0.7
+    port: 6443
+  k-master-3:
+    adr: 192.168.0.8
+    port: 6443
+
+master_hostname: k-master-1
+vip_address: 1.1.1.1
+

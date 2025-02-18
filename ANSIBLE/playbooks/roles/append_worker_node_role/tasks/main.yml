@@ -1,0 +1,6 @@
+---
+- name: Append worker node
+  shell: >
+      sudo kubeadm join {{ hostvars[item]['cluster_ip']  }} --token {{ hostvars[item]['ca_token'] }}  --discovery-token-ca-cert-hash sha256:{{ hostvars[item]['ca_fingerprint'] }}
+      --certificate-key {{ hostvars[item]['ca_key'] }} 
+  with_items: '{{ groups["init_node"] }}'

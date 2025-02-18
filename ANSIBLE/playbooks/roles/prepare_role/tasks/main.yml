@@ -1,0 +1,21 @@
+---
+- name: Drop previous files
+  file:
+    path: /tmp/KUBERNETES
+    state: absent
+  ignore_errors: true 
+
+- name: Enable proxy
+  script: enable_proxy.sh
+  when: enable_proxy == true
+    
+- name: Copy files to remote host
+  copy:
+    src: /etc/KUBERNETES
+    dest: /tmp 
+
+- name: Run prepare script
+  script: prepare.sh
+
+
+

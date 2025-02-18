@@ -1,0 +1,36 @@
+global
+	chroot /var/lib/haproxy
+	pidfile /var/run/haproxy.pid
+	maxconn 4000
+	user haproxy
+	group haproxy
+	daemon
+
+defaults
+	log global
+	mode tcp
+	retries 2
+	timeout client 30m
+	timeout connect 4s
+	timeout server 30m
+	timeout check 5s
+
+frontend main
+	bind {{ vip_address }}:{{ vip_port }}
+	default_backend  app
+
+backend app
+	balance roundrobin
+
+{% for node in master_nodes %}
+	server {{ node }} {{ master_nodes[node]["adr"] }}:{{ master_nodes[node]["port"] }} check
+{% endfor %}
+
+listen stats
+	bind *:9000
+	mode http
+	stats enable
+	stats hide-version
+	stats realm Haproxy\ Statistics
+	stats uri /haproxy_stats
+	

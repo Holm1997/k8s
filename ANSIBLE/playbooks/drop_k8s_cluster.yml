@@ -1,0 +1,5 @@
+- name: Drop K8S cluster
+  hosts: k8s
+  become: yes
+  roles:
+    - drop_k8s_cluster_role

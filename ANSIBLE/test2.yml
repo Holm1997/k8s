@@ -1,0 +1,9 @@
+- name: Test2
+  hosts: master_nodes
+  become: yes
+
+  tasks:
+  - name: Test
+    shell: 'echo {{ hostvars[item]["var1"] }}'
+    with_items: '{{ groups["init_node"] }}'
+    

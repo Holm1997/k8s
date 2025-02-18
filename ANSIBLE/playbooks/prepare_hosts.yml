@@ -1,0 +1,5 @@
+- name: Prepare hosts before init K8S cluster
+  hosts: all
+  gather_facts: true
+  roles:
+    - prepare_role

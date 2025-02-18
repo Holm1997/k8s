@@ -1,0 +1,13 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: test-web-2-manager
+  # replace with namespace where provisioner is deployed
+  namespace: test-web-2
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["*"] # "get", "watch","list", "patch", "create", "update"
+  - apiGroups: [""]
+    resources: ["pods", "services"]
+    verbs: ["*"] # "get", "watch","list", "patch", "create", "update"

@@ -1,0 +1,5 @@
+- name: Append worker nodes to cluster
+  hosts: worker_nodes
+  gather_facts: true
+  roles:
+    - append_worker_node_role

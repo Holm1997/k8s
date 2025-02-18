@@ -1,0 +1,88 @@
+---
+- name: Reset initial master node
+  shell: sudo kubeadm reset -f
+  ignore_errors: true
+
+
+- name: Drop old kubernetes repository
+  file:
+    path: /etc/kubernetes
+    state: absent
+  ignore_errors: true
+
+
+- name: Create kubernetes repository
+  file:
+    path: /etc/kubernetes
+    owner: root
+    group: root
+    mode: 644
+    state: directory
+
+
+- name: Copy kubeadm configuration to kubernetes directory
+  template:
+    src: templates/kubeadm-conf.j2
+    dest: /etc/kubernetes/kubeadm-conf.yml
+
+
+- name: Run init first control plane
+  shell: sudo kubeadm init --config /etc/kubernetes/kubeadm-conf.yml
+
+
+- name: Get coredns ip-address
+  shell: sudo kubectl -n kube-system get svc kube-dns -o jsonpath='{.spec.clusterIP}'
+  register: dns_ip
+
+
+- set_fact:
+    coredns_ip: '{{ dns_ip.stdout }}'
+
+
+- name: Copy node local manifest to master-node
+  template:
+    src: templates/nodelocaldns.j2
+    dest: /etc/kubernetes/manifests/node-local-dns.yml
+
+
+- name: Install node local dns
+  shell: sudo kubectl apply -f /etc/kubernetes/manifests/node-local-dns.yml
+
+- name: Copy CNI plugin for network
+  template:
+    src: templates/kube-flannel.j2
+    dest: /etc/kubernetes/manifests/kube-flannel.yml
+
+- name: Install CNI plugin in cluster
+  shell: sudo kubectl apply -f /etc/kubernetes/manifests/kube-flannel.yml
+
+
+- name: Pull active token
+  shell: >
+      sudo kubeadm token list |
+      awk 'NR==2 {print $1}'
+  register: ca_token
+
+
+- name: Create fingerprint CA of cluster
+  shell: > 
+      openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | 
+      openssl rsa -pubin -outform der 2>/dev/null | 
+      openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: ca_fingerprint
+
+
+- name: Pull CA key
+  shell: /bin/bash -c "sudo kubeadm init phase upload-certs --upload-certs |& tail -1"
+  register: ca_key
+  
+
+- name: Pull cluster IP
+  shell: sudo kubectl config view -o jsonpath='{.clusters[0].cluster.server}' | cut -c9-
+  register: cluster_ip
+
+- set_fact:
+    ca_token: '{{ ca_token.stdout }}'
+    ca_fingerprint: '{{ ca_fingerprint.stdout }}'
+    ca_key: '{{ ca_key.stdout }}'
+    cluster_ip: '{{ cluster_ip.stdout }}'

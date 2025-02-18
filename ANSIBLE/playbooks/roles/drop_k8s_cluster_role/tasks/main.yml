@@ -1,0 +1,9 @@
+---
+- name: Delete node from cluster
+  shell: sudo kubeadm reset -f
+
+- name: Drop old kubernetes repository
+  file:
+    path: /etc/kubernetes/
+    state: absent
+ 

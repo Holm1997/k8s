@@ -1,0 +1,35 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: test-web-1-deployment
+  namespace: test-web-1
+  labels:
+    app: k8s-test-web-1
+spec:
+  selector:
+    matchLabels:
+      project: test-web-1-frontend
+  template:
+    metadata:
+      labels:
+        project: test-web-1-frontend
+    spec:
+      serviceAccountName: test-sa
+      volumes:
+        - name: test-web-1-storage
+          persistentVolumeClaim:
+            claimName: test-web-1-pvc
+      containers:
+        - name: test-web-1-frontend
+          image: nexus.dib:5000/k8s-php:test
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: "/usr/share/nginx/html"
+              name: test-web-1-storage
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              memory: 1000Mi
+              cpu: 200m

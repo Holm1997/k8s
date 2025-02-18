@@ -1,0 +1,121 @@
+# NAMESPACE
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-web-1
+---
+# PVC 
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: test-web-1-pvc
+  namespace: test-web-1
+spec:
+  storageClassName: nfs-client
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+# DEPLOYMENT
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: test-web-1-deployment
+  namespace: test-web-1
+  labels:
+    app: k8s-test-web-1
+spec:
+  selector:
+    matchLabels:
+      project: test-web-1-frontend
+  template:
+    metadata:
+      labels:
+        project: test-web-1-frontend
+    spec:
+      volumes:
+        - name: test-web-1-storage
+          persistentVolumeClaim:
+            claimName: test-web-1-pvc
+      containers:
+        - name: test-web-1-frontend
+          image: nexus.dib/k8s-test:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: "/usr/share/nginx/html"
+              name: test-web-1-storage
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              memory: 1000Mi
+              cpu: 200m
+---
+# AUTOSCALING
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: test-web-1-autoscaling
+  namespace: test-web-1
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: test-web-1-deployment
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 1
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 1
+---
+# SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: k8s-test-web-1
+  name: test-web-1-service
+  namespace: test-web-1
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  selector:
+    project: test-web-1-frontend
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+---
+# INGRESS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-web-1-ingress
+  namespace: test-web-1
+spec:
+  rules:
+  - host: test1.dib
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-web-1-service
+            port:
+              number: 80
+  ingressClassName: nginx

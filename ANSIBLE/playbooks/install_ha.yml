@@ -1,0 +1,5 @@
+- name: install High Availability cluster
+  hosts: master-nodes
+  gather_facts: true
+  roles:
+    - install_ha_role

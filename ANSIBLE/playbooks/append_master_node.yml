@@ -1,0 +1,5 @@
+- name: Append master nodes to cluster
+  hosts: master_nodes
+  gather_facts: true
+  roles:
+    - append_master_node_role

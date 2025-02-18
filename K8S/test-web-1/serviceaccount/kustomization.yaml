@@ -1,0 +1,6 @@
+namespace: test-web-1
+resources:
+  - service-account.yaml
+  - secret.yaml
+  - role.yaml
+  - role-binding.yaml

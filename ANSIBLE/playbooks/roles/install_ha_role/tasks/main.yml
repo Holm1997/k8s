@@ -1,0 +1,31 @@
+---
+- name: Install HAproxy
+  apt:
+    name: haproxy
+    update_cache: yes
+
+- name: Install keepalived
+  apt:
+    name: keepalived
+     
+- name: Copy HAproxy config file
+  template:
+    src: templates/haproxy.j2
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: Cope keepalived config file
+  template:
+    src: templates/keepalived.j2
+    dest: /etc/keepalived/keepalived.conf
+
+- name: Restart HAproxy
+  service:
+    name: haproxy
+    state: restarted
+
+- name: Restart keepalived
+  service:
+    name: keepalived
+    state: restarted
+
+

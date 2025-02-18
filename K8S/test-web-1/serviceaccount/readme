@@ -1,0 +1,9 @@
+/var/run/secrets/kubernetes.io/serviceaccount
+
+NAMESPACE=$(cat namespace)
+TOKEN=$(cat token)
+CACERT=ca.crt
+APISERVER=https://172.29.96.67:6443
+
+curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${APISERVER}/api
+curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X GET ${APISERVER}/apis/apps/v1/namespaces/${NAMESPACE}/deployments

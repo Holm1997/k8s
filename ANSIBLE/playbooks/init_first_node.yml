@@ -1,0 +1,5 @@
+- name: Init cluster and first master node
+  hosts: init_node
+  gather_facts: true
+  roles:
+    - init_first_node_role

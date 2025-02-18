@@ -1,0 +1,19 @@
+local_node_address: 192.168.0.6
+
+local_node_port: 6443 
+
+node_name: k-master-1
+
+k8s_cluster_name: kubernetes.testpoligon
+
+main_image_repository: registry.k8s.io
+
+control_plane_endpoint: "192.168.0.125:7443" 
+
+k8s_version: 1.31.1
+
+service_subnet: "10.244.0.0/18"
+
+pod_subnet: "10.244.64.0/18"
+
+local_dns_address: 169.254.188.100 
