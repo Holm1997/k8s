@@ -1,3 +1,15 @@
+KUBERNETES
+1.31.1
+
+Для установки кластера используется ansible [2.16]
+
+Основные конфигурационные файлы:
+ANSIBLE/ansible.cfg
+ANSIBLE/hosts
+ANSIBLE/group_vars
+
+
+
 1. Удалить файл подкачки
 	sudo swapoff -a
 	sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
