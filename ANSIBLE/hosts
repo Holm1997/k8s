@@ -1,16 +1,20 @@
 [init_node]
-k-master-1 ansible_host=k-master-1.testpoligon.ru
+k-master-1 ansible_host=k-master-1.holm.local
 
-[master_nodes]
-k-master-2 ansible_host=k-master-2.testpoligon.ru
-k-master-3 ansible_host=k-master-3.testpoligon.ru
+[other_master_nodes]
+k-master-2 ansible_host=k-master-2.holm.local
+k-master-3 ansible_host=k-master-3.holm.local
+
+[master_nodes:children]
+init_node
+other_master_nodes
 
 [worker_nodes]
-k-worker-1 ansible_host=k-worker-1.testpoligon.ru
-k-worker-2 ansible_host=k-worker-2.testpoligon.ru
-k-worker-3 ansible_host=k-worker-3.testpoligon.ru
+k-worker-1 ansible_host=k-worker-1.holm.local
+k-worker-2 ansible_host=k-worker-2.holm.local
+k-worker-3 ansible_host=k-worker-3.holm.local
+
 
 [k8s:children]
-init_node
 master_nodes
-worker_nodes
+

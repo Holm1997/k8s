@@ -1,21 +1,134 @@
----
-- name: Drop previous files
-  file:
-    path: /tmp/KUBERNETES
-    state: absent
-  ignore_errors: true 
-
+---  
 - name: Enable proxy
-  script: enable_proxy.sh
-  when: enable_proxy == true
-    
-- name: Copy files to remote host
-  copy:
-    src: /etc/KUBERNETES
-    dest: /tmp 
+  when:  enable_proxy == true
+  block:
+    - name: Set proxy for apt
+      template:
+        src: templates/10proxy.j2
+        dest: /etc/apt/apt.conf.d/10proxy
 
-- name: Run prepare script
-  script: prepare.sh
+    - name: Create directory containerd.service.d
+      file:
+        path: /etc/systemd/system/containerd.service.d
+        state: directory
+
+    - name: Set proxy for containerd
+      template:
+        src: templates/http-proxy.j2
+        dest: /etc/systemd/system/containerd.service.d/http-proxy.conf
+    
+    - name: Reload systemd
+      shell: sudo systemctl daemon-reload
+        
+
+- name: Update and install packages repositories
+  apt:
+    update_cache: true
+    name:
+      - iptables
+      - nfs-common
+      - bash-completion
+      - tar
+      - python3
+      - chrony
+      - mc
+      - vim
+      - rsyslog
+      - git
+      - jq
+      - conntrack
+      - socat
+      - net-tools
+      - inetutils-ping
+      - htop
+
+- name: Disable swap file
+  shell: |
+    sudo swapoff -a
+    sudo sed -i 's/\/swap.img/#\/swap.img/' /etc/fstab
+
+- name: Create /etc/modules-load.d/containerd.conf
+  shell: |
+    sudo cat <<EOF> /etc/modules-load.d/containerd.conf 
+    overlay 
+    br_netfilter 
+    
+
+- name: Enable overlay and br_netfolter kernel modules
+  shell: |
+    sudo modprobe overlay
+    sudo modprobe br_netfilter
+
+- name: Install network rules for kubernetes
+  shell: |
+    sudo cat <<EOF> /etc/sysctl.d/kubernetes.conf
+    net.bridge.bridge-nf-call-iptables = 1
+    net.bridge.bridge-nf-call-ip6tables = 1
+    net.ipv4.ip_forward = 1
+    net.ipv4.ip_nonlocal_bind = 1
+
+- name: Reload sysctl
+  shell: sudo sysctl --system
+
+- name: Copy containerd to remote host
+  copy:
+    src: '{{ base_dir }}/containerd'
+    dest: /tmp
+
+- name: Install containerd
+  shell: >
+    tar Cxzvf /usr/local /tmp/containerd/containerd-1.7.22-linux-amd64.tar.gz;
+    mv /tmp/containerd/containerd.service.txt /etc/systemd/system/containerd.service;
+    systemctl daemon-reload;
+    systemctl enable --now containerd;
+
+    mkdir /etc/containerd;
+    containerd config default | sudo tee /etc/containerd/config.toml > /dev/null 2>&1;
+    sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml;
+
+    systemctl restart containerd;
+
+    install -m 755 /tmp/containerd/runc.amd64 /usr/local/sbin/runc;
+
+    mkdir -p /opt/cni/bin;
+    tar Cxzvf /opt/cni/bin /tmp/containerd/cni-plugins-linux-amd64-v1.5.1.tgz;
+
+    tar Cxzvf /usr/bin /tmp/containerd/crictl/crictl-v1.31.1-linux-amd64.tar.gz;
+    sudo cp /tmp/containerd/crictl/crictl.yaml.txt /etc/crictl.yaml;
+
+- name: Copy kubeadm, kubelet and kubectl to remote host
+  copy:
+    src: "{{ item }}"
+    dest: /tmp
+  with_items:
+    - '{{ base_dir }}/kubeadm'
+    - '{{ base_dir }}/kubelet'
+    - '{{ base_dir }}/kubectl'
+
+- name: Install kubeadm, kubelet and kubectl
+  shell: |
+    sudo mv /tmp/kubeadm/kubeadm /usr/bin/kubeadm;
+    sudo mv /tmp/kubectl /usr/bin/kubectl;
+    sudo mv /tmp/kubelet/kubelet /usr/bin/kubelet;
+    sudo mv /tmp/kubelet/kubelet.service.txt /etc/systemd/system/kubelet.service;
+    sudo mkdir /etc/systemd/system/kubelet.service.d;
+
+- name: Copy kubelete service config file
+  template:
+    src: templates/10-kubeadm.j2
+    dest: /etc/systemd/system/kubelet.sevice.d/10-kubeadm.conf
+    
+
+- name: Change rules and restart kubeadm, kubelet and kubectl
+  shell: |
+    sudo chmod 700 /usr/bin/kubeadm;
+    sudo chmod 700 /usr/bin/kubelet;
+    sudo chmod 700 /usr/bin/kubectl;
+
+    sudo systemctl daemon-reload;
+    sudo systemctl enable kubelet;
+    sudo systemctl start kubelet;
+
 
 
 
