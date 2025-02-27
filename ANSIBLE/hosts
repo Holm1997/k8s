@@ -11,10 +11,9 @@ other_master_nodes
 
 [worker_nodes]
 k-worker-1 ansible_host=k-worker-1.holm.local
-k-worker-2 ansible_host=k-worker-2.holm.local
-k-worker-3 ansible_host=k-worker-3.holm.local
+
 
 
 [k8s:children]
 master_nodes
-
+worker_nodes

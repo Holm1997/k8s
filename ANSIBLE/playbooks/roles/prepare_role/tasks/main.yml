@@ -112,11 +112,12 @@
     sudo mv /tmp/kubelet/kubelet /usr/bin/kubelet;
     sudo mv /tmp/kubelet/kubelet.service.txt /etc/systemd/system/kubelet.service;
     sudo mkdir /etc/systemd/system/kubelet.service.d;
+  ignore_errors: true
 
-- name: Copy kubelete service config file
+- name: Copy kubelet service config file
   template:
     src: templates/10-kubeadm.j2
-    dest: /etc/systemd/system/kubelet.sevice.d/10-kubeadm.conf
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     
 
 - name: Change rules and restart kubeadm, kubelet and kubectl
