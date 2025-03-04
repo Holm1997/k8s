@@ -30,6 +30,12 @@
   shell: sudo kubeadm init --config /etc/kubernetes/kubeadm-conf.yml
 
 
+- name: Add link to kubectl
+  shell: |
+    mkdir /root/.kube;
+    ln -s /etc/kubernetes/admin.conf /root/.kube/config;
+
+
 - name: Get coredns ip-address
   shell: sudo kubectl -n kube-system get svc kube-dns -o jsonpath='{.spec.clusterIP}'
   register: dns_ip

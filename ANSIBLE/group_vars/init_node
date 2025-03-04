@@ -1,4 +1,4 @@
-local_node_address: 115.115.115.161
+local_node_address: 115.115.115.91
 
 local_node_port: 6443 
 
@@ -8,7 +8,7 @@ k8s_cluster_name: kubernetes.holm.local
 
 main_image_repository: registry.k8s.io
 
-control_plane_endpoint: "115.115.115.99:7443"
+control_plane_endpoint: "115.115.115.50:7443"
 
 k8s_version: 1.31.1
 
