@@ -21,9 +21,10 @@
       shell: sudo systemctl daemon-reload
         
 
-- name: Update and install packages repositories
+- name: Update and install packages
   apt:
-    update_cache: true
+    #update_cache: true
+    cache_valid_time: 432000
     name:
       - iptables
       - nfs-common
