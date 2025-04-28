@@ -2,4 +2,4 @@
   hosts: init_node
   gather_facts: true
   roles:
-    - ..\roles\init_first_node_role
+    - ../roles/init_first_node_role

@@ -2,4 +2,4 @@
   hosts: k8s
   become: yes
   roles:
-    - ..\roles\drop_k8s_cluster_role
+    - ../roles/drop_k8s_cluster_role

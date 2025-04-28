@@ -2,4 +2,4 @@
   hosts: worker_nodes
   gather_facts: true
   roles:
-    - ..\roles\append_worker_node_role
+    - ../roles/append_worker_node_role
