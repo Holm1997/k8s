@@ -66,7 +66,7 @@
     br_netfilter 
     
 
-- name: Enable overlay and br_netfolter kernel modules
+- name: Enable overlay and br_netfilter kernel modules
   shell: |
     sudo modprobe overlay
     sudo modprobe br_netfilter
@@ -124,6 +124,9 @@
     sudo mv /tmp/kubelet/kubelet /usr/bin/kubelet;
     sudo mv /tmp/kubelet/kubelet.service.txt /etc/systemd/system/kubelet.service;
     sudo mkdir /etc/systemd/system/kubelet.service.d;
+    sudo chmod 700 /usr/bin/kubeadm;
+    sudo chmod 700 /usr/bin/kubelet;
+    sudo chmod 700 /usr/bin/kubectl;
   ignore_errors: true
 
 - name: Copy kubelet service config file
@@ -132,15 +135,12 @@
     dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     
 
-- name: Change rules and restart kubeadm, kubelet and kubectl
-  shell: |
-    sudo chmod 700 /usr/bin/kubeadm;
-    sudo chmod 700 /usr/bin/kubelet;
-    sudo chmod 700 /usr/bin/kubectl;
-
-    sudo systemctl daemon-reload;
-    sudo systemctl enable kubelet;
-    sudo systemctl start kubelet;
+- name: Change rights and restart kubelet
+  service:
+    name: kubelet
+    state: started
+    enabled: true
+    daemon_reload: true
 
 
 
