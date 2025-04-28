@@ -2,4 +2,4 @@
   hosts: other_master_nodes
   gather_facts: true
   roles:
-    - append_master_node_role
+    - ..\roles\append_master_node_role

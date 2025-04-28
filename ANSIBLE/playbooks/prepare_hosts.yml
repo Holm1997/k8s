@@ -2,4 +2,4 @@
   hosts: k8s
   gather_facts: true
   roles:
-    - prepare_role
+    - ..\roles\prepare_role

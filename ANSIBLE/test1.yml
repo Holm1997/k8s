@@ -1,9 +1,0 @@
-- name: Test1
-  hosts: init_node
-  become: yes
-  gather_facts: true
-
-  tasks:
-  - set_fact:
-      var1: "blablabla"
-    

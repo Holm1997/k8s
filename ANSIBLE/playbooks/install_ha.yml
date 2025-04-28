@@ -2,4 +2,4 @@
   hosts: master_nodes
   gather_facts: true
   roles:
-    - install_ha_role
+    - ..\roles\install_ha_role
