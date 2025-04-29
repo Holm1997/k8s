@@ -4,8 +4,8 @@ kind: Secret
 metadata:
   name: test-ca-key-pair
 data:
-  tls.crt: <CA-cert | base-64 encode>
-  tls.key: <CA-key | base64 encode>
+  tls.crt: <cat CA.crt | base64 -w0>
+  tls.key: <cat CA.key | base64 -w0>
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
