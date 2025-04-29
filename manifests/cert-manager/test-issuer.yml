@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-ca-key-pair
+data:
+  tls.crt: <CA-cert | base-64 encode>
+  tls.key: <CA-key | base64 encode>
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: test-ca-issuer
+spec:
+  ca:
+    secretName: test-ca-key-pair
