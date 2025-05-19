@@ -1,0 +1,80 @@
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: pg-test-cluster
+spec:
+  postgresVersion: 17
+  users:
+    - name: administrator
+      # databases:
+      #   - zoo
+
+  service:
+    type: NodePort
+
+  instances:
+    - name: pg-main
+      dataVolumeClaimSpec:
+        storageClassName: storage-main
+        accessModes:
+        - "ReadWriteMany"
+        resources:
+          requests:
+            storage: 20Gi
+      tolerations:
+        - key: 'db'
+          operator: 'Equal'
+          value: 'pgsql'
+          effect: 'NoSchedule'
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+             nodeSelectorTerms:
+              - matchExpressions:
+                  - key: 'db'
+                    operator: In
+                    values: 
+                      - 'pgsql-main' 
+    
+
+    - name: pg-replica
+      dataVolumeClaimSpec:
+        storageClassName: storage-replica
+        accessModes:
+        - "ReadWriteMany"
+        resources:
+          requests:
+            storage: 20Gi
+      tolerations:
+        - key: 'db'
+          operator: 'Equal'
+          value: 'pgsql'
+          effect: 'NoSchedule'
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+             nodeSelectorTerms:
+              - matchExpressions:
+                  - key: 'db'
+                    operator: In
+                    values: 
+                      - 'pgsql-replica'
+
+
+  backups:
+    pgbackrest:
+      repos:
+      - name: repo1
+        volume:
+          volumeClaimSpec:
+            storageClassName: manged-nfs-storage
+            accessModes:
+            - "ReadWriteOnce"
+            resources:
+              requests:
+                storage: 20Gi
+
+
+  proxy:
+    pgBouncer:
+      replicas: 2

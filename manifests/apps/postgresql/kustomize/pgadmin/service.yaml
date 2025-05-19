@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  namespace: pgo
+spec:
+  selector:
+    postgres-operator.crunchydata.com/pgadmin: rhino
+  ports:
+  - port: 80
+    targetPort: 5050
+    nodePort: 31924
+  type: NodePort
